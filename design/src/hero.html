@@ -1,0 +1,78 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Flake hero</title>
+<link rel="stylesheet" href="../tokens.css">
+<link rel="stylesheet" href="ui.css">
+<style>
+  .top { position: absolute; left: 60px; right: 60px; top: 24px; height: 34px; display: flex; align-items: center; justify-content: space-between; }
+  .brand { display: flex; align-items: center; gap: 9px; font: 600 21px/1 var(--font-display); letter-spacing: -0.02em; }
+  .src { display: flex; align-items: center; gap: 7px; font-size: 12.5px; font-weight: 500; color: var(--color-text-muted); }
+  .in { position: absolute; left: 60px; right: 60px; top: 70px; height: 66px; display: flex; align-items: center; gap: 14px; padding: 0 12px 0 22px; border-radius: 16px; background: var(--color-bg-surface); box-shadow: 0 0 0 1px var(--color-separator); }
+  .in .ic { color: var(--color-text-muted); }
+  .in .id { flex: 1; font-size: 32px; font-weight: 500; }
+  .caret { display: inline-block; width: 2px; height: 30px; margin-left: 2px; vertical-align: -5px; background: var(--color-text-primary); }
+  .bits { position: absolute; left: 60px; right: 60px; top: 150px; display: grid; grid-template-columns: 42fr 5fr 5fr 12fr; gap: 6px; }
+  .grp { display: grid; gap: 5px; }
+  .cells { display: flex; gap: 1.5px; height: 20px; padding: 3px; border-radius: 6px; background: var(--color-bg-surface); box-shadow: inset 0 0 0 1px var(--color-separator); }
+  .cells i { flex: 1; border-radius: 2px; background: var(--color-fill-quiet); }
+  .cells i.one { background: var(--color-text-primary); }
+  .grp.ts .cells { background: var(--color-mark); box-shadow: none; }
+  .grp.ts .cells i { background: rgb(0 0 0 / 0.1); }
+  .grp.ts .cells i.one { background: var(--color-on-mark); }
+  .grp small { font-size: 11.5px; color: var(--color-text-muted); white-space: nowrap; }
+  .cards { position: absolute; left: 60px; right: 60px; top: 214px; display: grid; grid-template-columns: 1fr 1fr 1.25fr; gap: 14px; }
+  .card { height: 214px; border-radius: var(--radius-card); background: var(--color-bg-surface); box-shadow: 0 0 0 1px var(--color-separator), 0 8px 24px rgb(0 0 0 / 0.05); padding: 16px 18px; display: flex; flex-direction: column; gap: 8px; }
+  .card h3 { margin: 0; font-size: 12.5px; font-weight: 600; color: var(--color-text-muted); }
+  .big { font: 600 30px/1.08 var(--font-display); letter-spacing: -0.024em; }
+  .when { font-size: 14px; }
+  .who { display: flex; gap: 12px; align-items: center; }
+  .who b { display: block; font: 600 18px/1.2 var(--font-display); letter-spacing: -0.016em; }
+  .who span { color: var(--color-text-muted); font-size: 13px; }
+  .facts { display: grid; gap: 6px; margin-top: auto; font-size: 12.5px; color: var(--color-text-muted); }
+  .facts div { display: flex; align-items: center; gap: 7px; }
+  .list { display: grid; gap: 8px; }
+  .row { display: flex; align-items: flex-start; gap: 8px; font-size: 13px; line-height: 1.35; }
+  .row .flag { flex: none; }
+  .copy { position: absolute; left: 0; right: 0; bottom: 26px; text-align: center; }
+  .copy h1 { margin: 0; font: 600 50px/1.06 var(--font-display); letter-spacing: -0.03em; }
+  .copy p { margin: 8px 0 0; font-size: 17px; color: var(--color-text-muted); letter-spacing: -0.012em; }
+</style>
+<div class="top"><div class="brand"><span id="logo"></span>Flake</div><div class="src" id="src"></div></div>
+<div class="in" id="in"></div>
+<div class="bits" id="bits"></div>
+<div class="cards" id="cards"></div>
+<div class="copy"><h1 id="h"></h1><p id="s"></p></div>
+<script src="kit.js"></script>
+<script src="ui.js"></script>
+<script>
+  const { PEOPLE, decode, date, age, BRAND } = Kit;
+  const { icon, discord, hl, warn, match, ease, span } = UI;
+  const $ = (id) => document.getElementById(id);
+  $('logo').innerHTML = Kit.iconSVG({ size: 30, small: true, uid: 'lg' });
+  $('src').innerHTML = `${discord(14)}Official Discord API, your own bot token. Sample data.`;
+  $('h').textContent = BRAND.headline;
+  $('s').textContent = BRAND.sub;
+  const P = PEOPLE.impostor, R = PEOPLE.real, d = decode(P.id), dr = decode(R.id);
+  const groups = [['ts', 0, 42, 'Timestamp, 42 bits'], ['', 42, 47, 'Worker'], ['', 47, 52, 'Process'], ['', 52, 64, 'Count']];
+  const card = (o, html) => `<div class="card" style="opacity:${o};transform:translateY(${(1 - o) * 16}px)">${html}</div>`;
+  // Type the ID, split it into bits, read the birthday, then compare with the saved middleman.
+  window.seek = (t) => {
+    const out = 1 - span(t, 8.4, 8.9);
+    const n = Math.round(P.id.length * span(t, 0.2, 1.6) * out);
+    $('in').innerHTML = `${icon('search', 22)}<span class="id">${P.id.slice(0, n)}<i class="caret" style="opacity:${t < 1.9 && Math.floor(t * 3) % 2 === 0 ? 1 : 0}"></i></span><span class="btn ${t > 1.8 ? 'solid' : ''}">Look up</span>`;
+    const fill = span(t, 2.0, 2.9) * out;
+    $('bits').innerHTML = groups.map(([cls, a, b, label]) => `<div class="grp ${cls && t > 3.0 && out > 0.5 ? cls : ''}"><div class="cells">${d.bin.slice(a, b).split('').map((c, i) => `<i class="${(a + i) / 64 < fill && c === '1' ? 'one' : ''}"></i>`).join('')}</div><small>${label}</small></div>`).join('');
+    const c1 = ease(span(t, 3.2, 3.7)) * out, c2 = ease(span(t, 4.0, 4.5)) * out, c3 = ease(span(t, 4.8, 5.3)) * out;
+    const f = (k) => span(t, 5.2 + k * 0.45, 5.5 + k * 0.45);
+    $('cards').innerHTML =
+      card(c1, `<h3>Created</h3><div class="big">${hl(date(d.ms).split(',').slice(0, 2).join(','))}</div><div class="when id">${date(d.ms, { sec: true }).split(', ').pop()}</div><div>${warn(age(d.ms))}</div>
+        <div class="facts"><div>${icon('wifioff', 14)}Read from the ID itself, offline</div></div>`) +
+      card(c2, `<h3>Profile</h3><div class="who"><img class="av" src="${P.avatar}" width="54" height="54" alt=""><div><b>${P.name}</b><span>@${P.user}</span></div></div>
+        <div class="facts"><div>${icon('star', 14)}No badges</div><div>${icon('tag', 14)}No server tag</div><div>${icon('image', 14)}Custom avatar</div></div>`) +
+      card(c3, `<h3>Compared with your saved IDs</h3><div class="list">
+        <div class="row" style="opacity:${f(0)}">${warn('Copies')}<span>The display name of <b>ash.trades</b>, with a Cyrillic А.</span></div>
+        <div class="row" style="opacity:${f(1)}">${warn('Same avatar')}<span>Pixel for pixel, the picture <b>ash.trades</b> uses.</span></div>
+        <div class="row" style="opacity:${f(2)}">${match('Real one')}<span>ash.trades was made ${date(dr.ms).split(',').slice(0, 2).join(',')}.</span></div></div>`);
+  };
+  seek(0);
+</script>
