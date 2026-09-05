@@ -1,0 +1,59 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Flake: invite check</title>
+<link rel="stylesheet" href="../tokens.css">
+<link rel="stylesheet" href="ui.css">
+<style>
+  .win { bottom: 30px; }
+  .body { flex: 1; min-height: 0; padding: 18px 22px; display: flex; flex-direction: column; gap: 14px; }
+  .verdict { display: flex; gap: 14px; align-items: flex-start; padding: 16px 18px; border-radius: 14px; background: var(--color-warn-fill); }
+  .verdict .ic { color: var(--color-warn); margin-top: 3px; }
+  .verdict b { display: block; font: 600 22px/1.15 var(--font-display); letter-spacing: -0.02em; color: var(--color-warn); }
+  .verdict p { margin: 4px 0 0; font-size: 13.5px; line-height: 1.45; max-width: 72ch; }
+  .cmp { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .col { border-radius: 14px; padding: 14px 16px; box-shadow: 0 0 0 1px var(--color-separator); display: grid; gap: 10px; }
+  .col.now { box-shadow: 0 0 0 1.5px var(--color-warn); }
+  .col h4 { margin: 0; font-size: 12.5px; font-weight: 600; color: var(--color-text-muted); }
+  .srv { display: flex; gap: 12px; align-items: center; }
+  .srv img { width: 46px; height: 46px; border-radius: 12px; }
+  .srv b { display: block; font: 600 17px/1.2 var(--font-display); letter-spacing: -0.014em; }
+  .kv { display: grid; grid-template-columns: 110px minmax(0, 1fr); gap: 6px 10px; font-size: 13px; }
+  .kv span:nth-child(odd) { color: var(--color-text-muted); }
+  .num { font-variant-numeric: tabular-nums; }
+  .also { display: grid; gap: 8px; }
+  .also div { display: flex; align-items: center; gap: 10px; font-size: 13px; }
+  .acts { margin-top: auto; display: flex; gap: 8px; justify-content: flex-end; }
+  .credit { position: absolute; right: 26px; bottom: 9px; font-size: 10.5px; color: var(--color-text-muted); }
+</style>
+<div class="win">
+  <div id="side" style="display:contents"></div>
+  <main class="main">
+    <div class="bar"><div class="field" id="field"></div><span class="btn solid">Check invite</span></div>
+    <div class="body" id="body"></div>
+  </main>
+</div>
+<div class="credit">Mockup with sample data. Cat photo: see CREDITS.md.</div>
+<script src="kit.js"></script>
+<script src="ui.js"></script>
+<script>
+  const { SERVERS, decode, date, age } = Kit;
+  const { icon, sidebar, hl, warn, idText } = UI;
+  const $ = (id) => document.getElementById(id);
+  $('side').innerHTML = sidebar('Invites');
+  $('field').innerHTML = `${icon('link', 17)}discord.gg/pixelmarket`;
+  const A = SERVERS.pixel, B = SERVERS.clone, da = decode(A.id), db = decode(B.id);
+  const inviter = '1567301962205696071', di = decode(inviter);
+  const col = (s, d, title, now) => `<div class="col ${now ? 'now' : ''}"><h4>${title}</h4>
+    <div class="srv"><img src="${s.icon}" alt=""><div><b>${s.name}</b>${idText(s.id)}</div></div>
+    <div class="kv"><span>Server made</span><span>${hl(date(d.ms).split(',').slice(0, 2).join(','))} ${now ? warn(age(d.ms)) : ''}</span>
+      <span>Members</span><span class="num">${s.members.toLocaleString('en-US')}, ${s.online.toLocaleString('en-US')} online</span>
+      <span>Boosts</span><span class="num">${s.boosts}</span>
+      <span>Verification</span><span>${s.level}</span></div></div>`;
+  $('body').innerHTML = `<div class="verdict">${icon('alert', 22, 2)}<div><b>This invite changed hands.</b><p>When you saved discord.gg/pixelmarket on Sep 12, it led to Pixel Market. Today the same link leads to a different server that copies its name and icon. Vanity links can be claimed by anyone once a server loses them.</p></div></div>
+    <div class="cmp">${col(A, da, 'When you saved it, Sep 12', false)}${col(B, db, 'Today', true)}</div>
+    <div class="also">
+      <div>${warn('Phishing link')}One link in the server description is on the FishFish list of known Discord scams.</div>
+      <div>${warn('New inviter')}The invite was made by ${idText(inviter)}, an account made ${hl(date(di.ms))}.</div>
+    </div>
+    <div class="acts"><span class="btn">${icon('out', 14)}Report to Discord</span><span class="btn solid">${icon('case', 14)}Add to case</span></div>`;
+</script>
