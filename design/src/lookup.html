@@ -1,0 +1,75 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Flake: lookup</title>
+<link rel="stylesheet" href="../tokens.css">
+<link rel="stylesheet" href="ui.css">
+<style>
+  .body { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr) 300px; }
+  .prof { padding: 18px 20px; overflow: hidden; }
+  .banner { height: 120px; border-radius: 14px; background-size: cover; background-position: center; }
+  .head { display: flex; align-items: flex-end; gap: 14px; margin: -38px 0 0 18px; }
+  .head .av { box-shadow: 0 0 0 5px var(--color-bg-surface); }
+  .head .nm { padding-bottom: 4px; }
+  .head b { display: block; font: 600 24px/1.1 var(--font-display); letter-spacing: -0.022em; }
+  .head span { color: var(--color-text-muted); font-size: 13.5px; }
+  .grid { display: grid; grid-template-columns: 130px minmax(0, 1fr); gap: 10px 12px; margin-top: 18px; font-size: 13.5px; align-items: center; }
+  .grid dt { color: var(--color-text-muted); }
+  .grid dd { margin: 0; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+  .acc { width: 16px; height: 16px; border-radius: 4px; }
+  .tagp { display: inline-flex; align-items: center; gap: 6px; height: 26px; padding: 0 10px 0 4px; border-radius: 13px; background: var(--color-fill-quiet); font-weight: 700; font-size: 12px; }
+  .tagp img { width: 20px; height: 20px; border-radius: 6px; }
+  .since { margin-top: 18px; padding: 12px 14px; border-radius: 12px; background: var(--color-bg-quiet); }
+  .since h4 { margin: 0 0 6px; font-size: 12.5px; font-weight: 600; display: flex; align-items: center; gap: 6px; }
+  .since div { font-size: 13px; color: var(--color-text-muted); line-height: 1.5; }
+  .since s { color: var(--color-text-muted); }
+  .leads { border-left: 1px solid var(--color-separator); padding: 16px 16px; display: flex; flex-direction: column; gap: 12px; background: var(--color-bg-sidebar); }
+  .leads h3 { margin: 0; font: 600 15px/1.2 var(--font-display); }
+  .lead { padding: 12px; border-radius: 12px; background: var(--color-bg-surface); box-shadow: 0 0 0 1px var(--color-separator); display: grid; gap: 8px; }
+  .lead h5 { margin: 0; font-size: 12px; font-weight: 600; color: var(--color-text-muted); display: flex; align-items: center; gap: 6px; }
+  .srv { display: flex; gap: 10px; align-items: center; }
+  .srv img { width: 38px; height: 38px; border-radius: 10px; }
+  .srv b { display: block; font-size: 13.5px; }
+  .srv span { font-size: 12px; color: var(--color-text-muted); }
+  .btns { display: flex; flex-wrap: wrap; gap: 6px; }
+  .lead p { margin: 0; font-size: 12px; color: var(--color-text-muted); line-height: 1.4; }
+  .foot { margin-top: auto; display: grid; gap: 8px; }
+  .foot .btn { width: 100%; }
+  .win { bottom: 30px; }
+  .credit { position: absolute; right: 26px; bottom: 9px; font-size: 10.5px; color: var(--color-text-muted); }
+</style>
+<div class="win">
+  <div id="side" style="display:contents"></div>
+  <main class="main">
+    <div class="bar"><div class="field" id="field"></div><span class="btn solid">Look up</span></div>
+    <div class="body">
+      <section class="prof" id="prof"></section>
+      <aside class="leads" id="leads"></aside>
+    </div>
+  </main>
+</div>
+<div class="credit">Mockup with sample data. Animal photos: see CREDITS.md. NASA image of the aurora.</div>
+<script src="kit.js"></script>
+<script src="ui.js"></script>
+<script>
+  const { PEOPLE, SERVERS, decode, date, age } = Kit;
+  const { icon, sidebar, hl, match, idText } = UI;
+  const $ = (id) => document.getElementById(id);
+  const P = PEOPLE.mochi, S = SERVERS.pixel, d = decode(P.id), ds = decode(S.id);
+  $('side').innerHTML = sidebar('Lookup');
+  $('field').innerHTML = `${icon('search', 17)}${idText(P.id)}`;
+  $('prof').innerHTML = `<div class="banner" style="background-image:url(${P.banner})"></div>
+    <div class="head"><img class="av" src="${P.avatar}" width="92" height="92" alt=""><div class="nm"><b>${P.name}</b><span>@${P.user}</span></div></div>
+    <dl class="grid">
+      <dt>User ID</dt><dd>${idText(P.id)}<span class="btn small">${icon('copy', 13)}Copy</span></dd>
+      <dt>Created</dt><dd>${hl(date(d.ms))}<span class="chip">${age(d.ms)}</span></dd>
+      <dt>Badges</dt><dd>${P.badges.map((b) => `<span class="chip">${b}</span>`).join('')}</dd>
+      <dt>Server tag</dt><dd><span class="tagp"><img src="${S.icon}" alt="">${P.tag}</span><span style="color:var(--color-text-muted)">from ${S.name}</span></dd>
+      <dt>Profile color</dt><dd><i class="acc" style="background:${P.accent}"></i><span class="id">${P.accent}</span></dd>
+    </dl>
+    <div class="since"><h4>${icon('diff', 14)}Since you last looked, Aug 2</h4><div>Display name: <s>mochi ✦ codes</s> → ${hl('Mochi')}<br>Avatar changed. Both versions are saved in the case file.</div></div>`;
+  $('leads').innerHTML = `<h3>Leads</h3>
+    <div class="lead"><h5>${icon('tag', 13)}The server tag points to</h5><div class="srv"><img src="${S.icon}" alt=""><div><b>${S.name}</b><span>${S.members.toLocaleString('en-US')} members</span><br><span>Made ${hl(date(ds.ms).split(',').slice(0, 2).join(','))}</span></div></div><div class="btns"><span class="btn small">Open server</span></div></div>
+    <div class="lead"><h5>${icon('image', 13)}Search the avatar</h5><div class="btns"><span class="btn small">Google Lens</span><span class="btn small">Bing</span><span class="btn small">Yandex</span><span class="btn small">TinEye</span></div></div>
+    <div class="lead"><h5>${icon('globe', 13)}Same username elsewhere</h5><p>Runs Sherlock on your PC when you click. Nothing is saved unless you add it.</p><div class="btns"><span class="btn small">${icon('terminal', 13)}Check mochi.dev</span></div></div>
+    <div class="foot"><span class="btn solid">${icon('case', 14)}Add to case</span></div>`;
+</script>
