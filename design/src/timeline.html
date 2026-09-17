@@ -1,0 +1,75 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Flake: timeline</title>
+<link rel="stylesheet" href="../tokens.css">
+<link rel="stylesheet" href="ui.css">
+<style>
+  .win { bottom: 30px; }
+  .body { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr) 300px; }
+  .chart { padding: 20px 22px; display: flex; flex-direction: column; gap: 10px; }
+  .chart h2 { margin: 0; font: 600 26px/1.15 var(--font-display); letter-spacing: -0.024em; }
+  .chart p { margin: 0; color: var(--color-text-muted); font-size: 13.5px; }
+  .strip { position: relative; height: 70px; margin-top: 10px; border-radius: 12px; background: var(--color-bg-quiet); }
+  .strip .axis { position: absolute; left: 16px; right: 16px; top: 34px; height: 1.5px; background: var(--color-separator); }
+  .strip .d { position: absolute; top: 28px; width: 13px; height: 13px; margin-left: -6.5px; border-radius: 50%; background: var(--color-text-primary); box-shadow: 0 0 0 2px var(--color-bg-quiet); }
+  .strip .lbl { position: absolute; bottom: 6px; font-size: 11px; color: var(--color-text-muted); transform: translateX(-50%); white-space: nowrap; }
+  .zoom { position: relative; height: 230px; border-radius: 12px; box-shadow: inset 0 0 0 1px var(--color-separator); }
+  .band { position: absolute; top: 12px; bottom: 34px; border-radius: 8px; background: rgb(255 214 10 / 0.16); box-shadow: inset 0 0 0 1.5px var(--color-mark); }
+  .band span { position: absolute; left: 8px; top: 8px; padding: 1px 6px; border-radius: 5px; font-size: 12px; font-weight: 700; color: var(--color-on-mark); background: var(--color-mark); }
+  .zoom .d { position: absolute; width: 12px; height: 12px; margin: -6px 0 0 -6px; border-radius: 50%; background: var(--color-text-primary); }
+  .zoom .tick { position: absolute; bottom: 10px; font-size: 11px; color: var(--color-text-muted); transform: translateX(-50%); font-variant-numeric: tabular-nums; }
+  .zoom .grid { position: absolute; top: 12px; bottom: 34px; width: 1px; background: var(--color-separator); }
+  .note { display: flex; align-items: center; gap: 7px; font-size: 12.5px; color: var(--color-text-muted); }
+  .list { border-left: 1px solid var(--color-separator); background: var(--color-bg-sidebar); display: flex; flex-direction: column; min-height: 0; }
+  .list h3 { margin: 0; padding: 16px 16px 8px; font: 600 15px/1.2 var(--font-display); }
+  .rows { padding: 0 8px; overflow: hidden; }
+  .r { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 8px; padding: 6px 8px; border-radius: 8px; font-size: 12px; }
+  .r .id { font-size: 12px; }
+  .r small { grid-column: 1 / -1; color: var(--color-text-muted); font-size: 11.5px; font-variant-numeric: tabular-nums; }
+  .r.in { background: rgb(255 214 10 / 0.1); box-shadow: inset 3px 0 0 var(--color-mark); }
+  .acts { margin-top: auto; padding: 12px 16px; display: grid; gap: 8px; border-top: 1px solid var(--color-separator); }
+  .acts .btn { width: 100%; }
+  .credit { position: absolute; right: 26px; bottom: 9px; font-size: 10.5px; color: var(--color-text-muted); }
+</style>
+<div class="win">
+  <div id="side" style="display:contents"></div>
+  <main class="main">
+    <div class="bar"><div class="field" id="field"></div><span class="btn solid">Plot IDs</span></div>
+    <div class="body">
+      <section class="chart" id="chart"></section>
+      <aside class="list" id="list"></aside>
+    </div>
+  </main>
+</div>
+<div class="credit">Mockup with sample IDs.</div>
+<script src="kit.js"></script>
+<script src="ui.js"></script>
+<script>
+  const { EPOCH, decode, date } = Kit;
+  const { icon, sidebar, hl, warn, idText } = UI;
+  const $ = (id) => document.getElementById(id);
+  $('side').innerHTML = sidebar('Timeline');
+  // 14 accounts that joined a server in one burst. 11 were made within four minutes of each other.
+  const mk = (iso, w, inc) => (((BigInt(Date.parse(iso)) - EPOCH) << 22n) | (BigInt(w) << 17n) | BigInt(inc)).toString();
+  const burst = [4, 27, 41, 58, 83, 101, 129, 150, 171, 203, 236].map((s, i) => mk(new Date(Date.parse('2026-11-05T03:12:00Z') + s * 1000 + i * 137).toISOString(), (i * 7) % 3, i));
+  const older = [mk('2017-04-19T08:30:12Z', 0, 3), mk('2020-12-02T22:05:40Z', 1, 8), mk('2023-07-28T14:51:09Z', 0, 1)];
+  const all = [...older, ...burst];
+  $('field').innerHTML = `${icon('timeline', 17)}<span class="id" style="white-space:nowrap;overflow:hidden">${all.slice(0, 4).join(', ')}, …</span>`;
+  const t0 = Date.parse('2015-06-01'), t1 = Date.parse('2026-12-01');
+  const X = (ms) => `calc(16px + (100% - 32px) * ${((ms - t0) / (t1 - t0)).toFixed(4)})`;
+  const yrs = [2016, 2018, 2020, 2022, 2024, 2026];
+  const z0 = Date.parse('2026-11-05T03:08:00Z'), z1 = Date.parse('2026-11-05T03:20:00Z');
+  const ZX = (ms) => 3 + ((ms - z0) / (z1 - z0)) * 94;
+  const bs = burst.map((id) => decode(id).ms);
+  $('chart').innerHTML = `<h2>11 of 14 accounts were made within four minutes.</h2>
+    <p>Every Discord ID contains the moment it was created, so this works offline. Paste IDs from a raid, a giveaway or a list of new members.</p>
+    <div class="strip"><div class="axis"></div>${all.map((id) => `<i class="d" style="left:${X(decode(id).ms)}"></i>`).join('')}
+      <span class="lbl" style="left:calc(100% - 46px);bottom:auto;top:8px;color:var(--color-text-primary);font-weight:600">11 here</span>
+      ${yrs.map((y) => `<span class="lbl" style="left:${X(Date.parse(y + '-01-01'))}">${y}</span>`).join('')}</div>
+    <div class="zoom"><div class="band" style="left:${ZX(bs[0]) - 1}%;width:${ZX(bs[bs.length - 1]) - ZX(bs[0]) + 2}%"><span>4 minutes</span></div>
+      ${[0, 2, 4, 6, 8, 10, 12].map((m) => `<i class="grid" style="left:${ZX(z0 + m * 60000)}%"></i><span class="tick" style="left:${ZX(z0 + m * 60000)}%">03:${String(8 + m).padStart(2, '0')}</span>`).join('')}
+      ${(() => { const h = {}; return bs.map((ms) => { const b = Math.floor((ms - z0) / 60000); h[b] = (h[b] || 0) + 1; return `<i class="d" style="left:${ZX(z0 + b * 60000 + 30000)}%;top:${196 - 30 - h[b] * 20}px"></i>`; }).join(''); })()}</div>
+    <div class="note">${icon('wifioff', 14)}Nothing was sent to Discord to draw this. Times are UTC, Nov 5, 2026.</div>`;
+  $('list').innerHTML = `<h3>14 IDs</h3><div class="rows">${[...burst.slice(0, 9), ...older].map((id) => { const d = decode(id), inB = burst.includes(id); return `<div class="r ${inB ? 'in' : ''}">${idText(id)}<span></span><small>${date(d.ms, { sec: true })}</small></div>`; }).join('')}</div>
+    <div class="acts"><span class="btn">Export CSV</span><span class="btn solid">${icon('case', 14)}Add to case</span></div>`;
+</script>
