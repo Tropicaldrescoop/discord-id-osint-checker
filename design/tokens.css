@@ -1,0 +1,56 @@
+/* Design tokens. Primitives name a value, semantics name a job.
+   Components use semantic tokens only. Contrast was measured with a WCAG 2 script. */
+
+:root {
+  /* Neutrals */
+  --gray-0: #000000;
+  --gray-850: #1c1c1e;
+  --gray-800: #232326;
+  --gray-750: #2c2c2e;
+  --gray-400: #a1a1a6;
+  --gray-50: #f5f5f7;
+  --ink: #1d1d1f;
+
+  /* The highlighter marks what Flake worked out: dates decoded from IDs, matches, leads. Text on it is always ink. */
+  --yellow-400: #ffd60a;
+  /* Red marks a warning sign, and always comes with words. */
+  --red-300: #ff6961;
+  /* Green marks a match with an ID you saved. */
+  --green-400: #30d158;
+
+  /* Surfaces */
+  --color-bg-page: var(--gray-0);
+  --color-bg-surface: var(--gray-850);
+  --color-bg-sidebar: var(--gray-800);
+  --color-bg-quiet: var(--gray-750);
+
+  /* Text. primary on surface 15.63:1. muted on surface 6.61:1, on sidebar 6.09:1, on quiet 5.42:1 */
+  --color-text-primary: var(--gray-50);
+  --color-text-muted: var(--gray-400);
+
+  /* Lines and fills */
+  --color-separator: rgb(255 255 255 / 0.1);
+  --color-fill-quiet: rgb(255 255 255 / 0.08);
+  --color-fill-selected: rgb(255 255 255 / 0.14);
+
+  /* Roles */
+  --color-mark: var(--yellow-400);
+  --color-on-mark: var(--ink); /* 11.92:1 */
+  --color-warn: var(--red-300); /* 6.03:1 on surface, 5.16:1 on its fill */
+  --color-warn-fill: rgb(255 69 58 / 0.14);
+  --color-match: var(--green-400); /* 8.42:1 on surface, 7.08:1 on its fill */
+  --color-match-fill: rgb(48 209 88 / 0.12);
+  --color-action-solid: var(--gray-50);
+  --color-action-label: var(--gray-0);
+
+  /* Type. SF Pro is not redistributable, so Apple devices get it from the system and everyone else gets Inter.
+     IDs are 17 to 19 digits, so they get a monospace face that keeps every digit apart. */
+  --font-display: "SF Pro Display", -apple-system, BlinkMacSystemFont, Inter, sans-serif;
+  --font-text: "SF Pro Text", -apple-system, BlinkMacSystemFont, Inter, sans-serif;
+  --font-id: "SF Mono", "Geist Mono", ui-monospace, monospace;
+
+  --radius-control: 8px;
+  --radius-card: 14px;
+  --radius-window: 14px;
+  --radius-pill: 999px;
+}
