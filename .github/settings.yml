@@ -1,0 +1,10 @@
+# The GitHub "About" box.
+repository:
+  name: discord-id-osint-checker
+  description: Free OSINT app for Discord IDs: paste a user, server or invite and see when it was made and who it copies.
+  homepage: https://github.com/Tropicaldrescoop/discord-id-osint-checker
+  topics: ["osint", "discord", "snowflake", "username-search", "desktop", "windows", "free"]
+  private: false
+  has_issues: true
+  has_projects: false
+  has_wiki: false
